@@ -76,10 +76,21 @@ def is_union(arg_type: Any) -> bool:
     Returns:
         bool: True if input type is `Union`
     """
-    try:
-        return safe_issubclass(arg_type.__origin__, Union)
-    except AttributeError:
-        return False
+    import types
+    from typing import Union, get_origin
+
+
+    origin = get_origin(arg_type)
+    if origin is Union:
+        return True
+
+    if hasattr(types, 'UnionType') and isinstance(arg_type, types.UnionType):
+        return True
+
+    if origin is not None and hasattr(types, 'UnionType') and origin is types.UnionType:
+        return True
+
+    return False
 
 
 def safe_issubclass(cls, classinfo) -> bool:
